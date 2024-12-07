@@ -1,17 +1,15 @@
 version: 0.2
-
 phases:
   install:
     runtime-versions:
-      python: 3.x
+      python: 3.8
     commands:
       - pip install -r requirements.txt
-  build:
-    commands:
-      - echo "Build phase complete"
-  post_build:
-    commands:
-      - echo "Post-build phase complete"
 artifacts:
   files:
-    - '**/*'
+    - appspec.yml
+    - scripts/*
+    - app.py
+    - templates/*
+    - requirements.txt
+    - vinyl_records.db
