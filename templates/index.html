@@ -1,0 +1,14 @@
+<!-- templates/index.html -->
+{% extends "base.html" %}
+{% block content %}
+    <div class="card welcome-card">
+        <h2>Welcome to Vinyl Records Collection Manager</h2>
+        <p>Your personal space to catalog and manage your precious vinyl collection.</p>
+        {% if not session.user_id %}
+            <div>
+                <a href="{{ url_for('login') }}" class="btn">Login</a>
+                <a href="{{ url_for('register') }}" class="btn" style="margin-left: 1rem;">Register</a>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

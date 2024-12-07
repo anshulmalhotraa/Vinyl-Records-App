@@ -1,0 +1,32 @@
+<!-- templates/edit_record.html -->
+{% extends "base.html" %}
+{% block content %}
+    <div class="card form-card">
+        <h2 class="page-title">Edit Record</h2>
+        <form method="POST">
+            <div class="form-group">
+                <label>Album Name:</label>
+                <input type="text" name="album_name" value="{{ record[1] }}" required>
+            </div>
+            <div class="form-group">
+                <label>Artist:</label>
+                <input type="text" name="artist" value="{{ record[2] }}" required>
+            </div>
+            <div class="form-group">
+                <label>Year:</label>
+                <input type="number" name="year" value="{{ record[3] }}" required>
+            </div>
+            <div class="form-group">
+                <label>Condition:</label>
+                <select name="condition" required>
+                    {% for condition in ['Mint', 'Near Mint', 'Very Good Plus', 'Very Good', 'Good', 'Fair', 'Poor'] %}
+                        <option value="{{ condition }}" {% if condition == record[4] %}selected{% endif %}>
+                            {{ condition }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn">Update Record</button>
+        </form>
+    </div>
+{% endblock %}

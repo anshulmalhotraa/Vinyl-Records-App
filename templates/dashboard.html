@@ -1,0 +1,43 @@
+<!-- templates/dashboard.html -->
+{% extends "base.html" %}
+{% block content %}
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h2 class="page-title" style="margin: 0;">Your Vinyl Records Collection</h2>
+            <a href="{{ url_for('add_record') }}" class="btn">Add New Record</a>
+        </div>
+        
+        {% if records %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Album Name</th>
+                        <th>Artist</th>
+                        <th>Year</th>
+                        <th>Condition</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in records %}
+                        <tr>
+                            <td>{{ record[1] }}</td>
+                            <td>{{ record[2] }}</td>
+                            <td>{{ record[3] }}</td>
+                            <td>{{ record[4] }}</td>
+                            <td class="actions">
+                                <a href="{{ url_for('edit_record', id=record[0]) }}" class="btn">Edit</a>
+                                <a href="{{ url_for('delete_record', id=record[0]) }}" class="btn btn-danger" 
+                                   onclick="return confirm('Are you sure you want to delete this record?')">Delete</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="empty-state">
+                <p>No records found. Add some to your collection!</p>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
