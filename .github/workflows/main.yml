@@ -71,6 +71,15 @@ jobs:
         # Set the environment to use
         eb use ${{ env.EB_ENVIRONMENT_NAME }}
 
+    - name: Wait for Elastic Beanstalk Environment to be Ready
+      run: |
+        # Wait until the environment is in "Ready" state
+        while ! eb status | grep -q 'Ready'; do
+          echo "Environment is not ready yet, waiting..."
+          sleep 30
+        done
+        echo "Environment is Ready."
+
     - name: Deploy to Elastic Beanstalk
       run: |
         # Deploy the application to Elastic Beanstalk using the version we registered
