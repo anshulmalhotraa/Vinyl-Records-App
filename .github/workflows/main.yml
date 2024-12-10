@@ -24,28 +24,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Validate SSM Parameter
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_REGION: ${{ secrets.AWS_REGION }}
-      run: |
-        pip install boto3
-        python -c "
-import boto3
-import sys
-ssm = boto3.client('ssm', region_name='${{ secrets.AWS_REGION }}')
-try:
-    response = ssm.get_parameter(Name='/flask/secret_key', WithDecryption=True)
-    print('SSM parameter validated successfully:', response)
-except ssm.exceptions.ParameterNotFound:
-    print('Error: SSM parameter `/flask/secret_key` not found. Exiting.')
-    sys.exit(1)
-except Exception as e:
-    print(f'Unexpected error: {e}')
-    sys.exit(1)
-        "
-
     - name: Zip application
       run: zip -r application.zip .
 
@@ -54,8 +32,10 @@ except Exception as e:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_REGION: ${{ secrets.AWS_REGION }}
+        FLASK_SECRET_KEY: ${{ secrets.FLASK_SECRET_KEY }}
       run: |
         pip install awsebcli
-        eb init -p python-3.9 random-app-name11 --region ${{ secrets.AWS_REGION }}
+        eb init -p python-3.9 random-app-name11 --region $AWS_REGION
         eb use random-env-name
+        eb setenv FLASK_SECRET_KEY=$FLASK_SECRET_KEY
         eb deploy
