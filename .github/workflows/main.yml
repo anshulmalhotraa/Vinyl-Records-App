@@ -68,12 +68,12 @@ jobs:
 
     - name: Check if Elastic Beanstalk Environment Exists
       run: |
-        # Check if the environment exists
-        if ! eb describe environment --environment-name ${{ env.EB_ENVIRONMENT_NAME }}; then
+        # Check if the environment exists using eb status
+        if eb status ${{ env.EB_ENVIRONMENT_NAME }}; then
+          echo "Environment already exists."
+        else
           echo "Environment not found, creating..."
           eb create ${{ env.EB_ENVIRONMENT_NAME }} --region ${{ env.AWS_REGION }} --single
-        else
-          echo "Environment already exists."
         fi
 
     - name: Deploy to Elastic Beanstalk
