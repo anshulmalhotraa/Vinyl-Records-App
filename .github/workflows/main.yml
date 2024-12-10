@@ -1,0 +1,57 @@
+name: Deploy to AWS Elastic Beanstalk
+
+on:
+  push:
+    branches: ["main"]
+
+env:
+  AWS_REGION: us-east-1                     # Set this to your AWS region, e.g., us-west-1
+  EB_APPLICATION_NAME: VinylRecordsApp      # Set this to your Elastic Beanstalk application name
+  EB_ENVIRONMENT_NAME: VinylRecordsEnv      # Set this to your Elastic Beanstalk environment name
+  EB_BUCKET_NAME: my-s3-bucket             # Set this to your S3 bucket for storing application versions
+  IMAGE_TAG: ${{ github.sha }}             # Image tag based on Git commit SHA
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy to Elastic Beanstalk
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.8'  # Set to the Python version you are using
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Prepare application for Elastic Beanstalk
+      run: |
+        # Create a ZIP file of the application to upload to Elastic Beanstalk
+        zip -r application.zip .  # Create a zip of the project folder
+
+    - name: Upload application to S3
+      run: |
+        aws s3 cp application.zip s3://${{ env.EB_BUCKET_NAME }}/application.zip
+
+    - name: Deploy to Elastic Beanstalk
+      run: |
+        eb init -p python-3.8 ${{ env.EB_APPLICATION_NAME }} --region ${{ env.AWS_REGION }} --no-verify-ssl
+        eb use ${{ env.EB_ENVIRONMENT_NAME }}
+        eb deploy --no-verify-ssl
