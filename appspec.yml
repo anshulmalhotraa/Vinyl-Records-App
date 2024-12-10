@@ -5,10 +5,6 @@ files:
     destination: /home/ubuntu/app/src
 hooks:
   AfterInstall:
-    - location: src/scripts/restart_server.sh
-      timeout: 300
-      runas: root
-  ApplicationStart:
     - location: src/scripts/start_flask.sh
       timeout: 300
       runas: root
