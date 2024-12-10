@@ -7,8 +7,8 @@ on:
 env:
   AWS_REGION: us-east-1                     # Set this to your AWS region, e.g., us-west-1
   EB_APPLICATION_NAME: VinylRecordsApp      # Set this to your Elastic Beanstalk application name
-  EB_ENVIRONMENT_NAME: VinylRecordsEnv      # Set this to your Elastic Beanstalk environment name
-  EB_BUCKET_NAME: vinyl-records-deployment             # Set this to your S3 bucket for storing application versions
+  EB_ENVIRONMENT_NAME: VinylRecordsApp-env      # Set this to your Elastic Beanstalk environment name
+  EB_BUCKET_NAME: vly2121            # Set this to your S3 bucket for storing application versions
   IMAGE_TAG: ${{ github.sha }}             # Image tag based on Git commit SHA
 
 permissions:
