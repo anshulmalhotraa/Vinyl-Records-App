@@ -56,6 +56,12 @@ jobs:
       run: |
         aws s3 cp application.zip s3://${{ env.EB_BUCKET_NAME }}/application.zip
 
+    - name: Initialize Elastic Beanstalk Application
+      run: |
+        # Initialize Elastic Beanstalk for Python 3.12
+        eb init -p python-3.12 ${{ env.EB_APPLICATION_NAME }} --region ${{ env.AWS_REGION }} --no-verify-ssl
+        eb use ${{ env.EB_ENVIRONMENT_NAME }}
+
     - name: Create Elastic Beanstalk Environment if it doesn't exist
       run: |
         # Check if the environment exists, and create it if not
@@ -68,6 +74,5 @@ jobs:
 
     - name: Deploy to Elastic Beanstalk
       run: |
-        eb init -p python-3.12 ${{ env.EB_APPLICATION_NAME }} --region ${{ env.AWS_REGION }} --no-verify-ssl
-        eb use ${{ env.EB_ENVIRONMENT_NAME }}
+        # Deploy the application to Elastic Beanstalk
         eb deploy --no-verify-ssl
