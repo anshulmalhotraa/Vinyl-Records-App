@@ -6,8 +6,6 @@ on:
 
 env:
   AWS_REGION: us-east-2                     # Set this to your AWS region, e.g., us-west-1
-  EB_APPLICATION_NAME: MyApp                # New Elastic Beanstalk application name
-  EB_ENVIRONMENT_NAME: MyApp-env-1          # New Elastic Beanstalk environment name
   EB_BUCKET_NAME: vly2121                   # Set this to your S3 bucket for storing application versions
   IMAGE_TAG: ${{ github.sha }}              # Image tag based on Git commit SHA
 
@@ -57,7 +55,7 @@ jobs:
         aws s3 cp application.zip s3://${{ env.EB_BUCKET_NAME }}/application.zip
         # Register the application version with Elastic Beanstalk
         aws elasticbeanstalk create-application-version \
-          --application-name ${{ env.EB_APPLICATION_NAME }} \
+          --application-name MyDynamicApp \
           --version-label ${{ env.IMAGE_TAG }} \
           --source-bundle S3Bucket=${{ env.EB_BUCKET_NAME }},S3Key=application.zip
 
@@ -66,17 +64,17 @@ jobs:
         # Initialize Elastic Beanstalk for Python 3.12
         eb init -p python-3.12 --region ${{ env.AWS_REGION }} --no-verify-ssl
 
-    - name: Check if Elastic Beanstalk Environment Exists
+    - name: Create Elastic Beanstalk Environment
       run: |
         # Check if the environment exists using eb status
-        if eb status ${{ env.EB_ENVIRONMENT_NAME }}; then
+        if eb list | grep -q 'MyDynamicEnv'; then
           echo "Environment already exists."
         else
-          echo "Environment not found, creating..."
-          eb create ${{ env.EB_ENVIRONMENT_NAME }} --region ${{ env.AWS_REGION }} --single
+          echo "Creating Elastic Beanstalk environment..."
+          eb create MyDynamicEnv --region ${{ env.AWS_REGION }} --single
         fi
 
     - name: Deploy to Elastic Beanstalk
       run: |
         # Deploy the application to Elastic Beanstalk using the version we registered
-        eb deploy --no-verify-ssl --label ${{ env.IMAGE_TAG }}
+        eb deploy MyDynamicEnv --no-verify-ssl --label ${{ env.IMAGE_TAG }}
