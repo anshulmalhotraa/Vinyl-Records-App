@@ -17,7 +17,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.12'
+        python-version: '3.9'
 
     - name: Install dependencies
       run: |
@@ -34,6 +34,6 @@ jobs:
         AWS_REGION: ${{ secrets.AWS_REGION }}
       run: |
         pip install awsebcli
-        eb init -p python-3.12 vinyl-records-app21 --region us-east-2
-        eb use your-environment-name
+        eb init -p python-3.9 random-app-name11 --region us-east-2
+        eb use random-env-name
         eb deploy
