@@ -66,10 +66,15 @@ jobs:
         # Initialize Elastic Beanstalk for Python 3.12
         eb init -p python-3.12 --region ${{ env.AWS_REGION }} --no-verify-ssl
 
-    - name: Create Elastic Beanstalk Environment
+    - name: Check if Elastic Beanstalk Environment Exists
       run: |
-        # Create the Elastic Beanstalk environment if it doesn't exist
-        eb create ${{ env.EB_ENVIRONMENT_NAME }} --region ${{ env.AWS_REGION }} --single
+        # Check if the environment exists
+        if ! eb describe environment --environment-name ${{ env.EB_ENVIRONMENT_NAME }}; then
+          echo "Environment not found, creating..."
+          eb create ${{ env.EB_ENVIRONMENT_NAME }} --region ${{ env.AWS_REGION }} --single
+        else
+          echo "Environment already exists."
+        fi
 
     - name: Deploy to Elastic Beanstalk
       run: |
