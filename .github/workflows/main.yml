@@ -55,6 +55,11 @@ jobs:
     - name: Upload application to S3
       run: |
         aws s3 cp application.zip s3://${{ env.EB_BUCKET_NAME }}/application.zip
+        # Register the application version with Elastic Beanstalk
+        aws elasticbeanstalk create-application-version \
+          --application-name ${{ env.EB_APPLICATION_NAME }} \
+          --version-label ${{ env.IMAGE_TAG }} \
+          --source-bundle S3Bucket=${{ env.EB_BUCKET_NAME }},S3Key=application.zip
 
     - name: Initialize Elastic Beanstalk Application
       run: |
@@ -68,5 +73,5 @@ jobs:
 
     - name: Deploy to Elastic Beanstalk
       run: |
-        # Deploy the application to Elastic Beanstalk
-        eb deploy --no-verify-ssl
+        # Deploy the application to Elastic Beanstalk using the version we registered
+        eb deploy --no-verify-ssl --label ${{ env.IMAGE_TAG }}
