@@ -60,9 +60,16 @@ jobs:
         if ! aws elasticbeanstalk describe-applications --application-names MyDynamicApp; then
           echo "Creating Elastic Beanstalk application..."
           aws elasticbeanstalk create-application --application-name MyDynamicApp
-          # Wait for the application to be ready
-          echo "Waiting for application creation..."
-          sleep 20  # Add a delay to ensure the application is created
+          # Wait for the application to be recognized
+          echo "Waiting for application to be available..."
+          for i in {1..10}; do
+            if aws elasticbeanstalk describe-applications --application-names MyDynamicApp; then
+              echo "Application is available."
+              break
+            fi
+            echo "Application not available yet, retrying in 10 seconds..."
+            sleep 10
+          done
         else
           echo "Application already exists."
         fi
