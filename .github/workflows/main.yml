@@ -1,4 +1,4 @@
-name: Deploy to AWS Elastic Beanstalk
+name: Create and Deploy to AWS Elastic Beanstalk
 
 on:
   push:
@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   deploy:
-    name: Deploy to Elastic Beanstalk
+    name: Create and Deploy to Elastic Beanstalk
     runs-on: ubuntu-latest
     environment: production
 
@@ -66,19 +66,10 @@ jobs:
         # Initialize Elastic Beanstalk for Python 3.12
         eb init -p python-3.12 --region ${{ env.AWS_REGION }} --no-verify-ssl
 
-    - name: Use Elastic Beanstalk Environment
+    - name: Create Elastic Beanstalk Environment
       run: |
-        # Set the environment to use
-        eb use ${{ env.EB_ENVIRONMENT_NAME }}
-
-    - name: Wait for Elastic Beanstalk Environment to be Ready
-      run: |
-        # Wait until the environment is in "Ready" state
-        while ! eb status | grep -q 'Ready'; do
-          echo "Environment is not ready yet, waiting..."
-          sleep 30
-        done
-        echo "Environment is Ready."
+        # Create the Elastic Beanstalk environment if it doesn't exist
+        eb create ${{ env.EB_ENVIRONMENT_NAME }} --region ${{ env.AWS_REGION }} --single
 
     - name: Deploy to Elastic Beanstalk
       run: |
