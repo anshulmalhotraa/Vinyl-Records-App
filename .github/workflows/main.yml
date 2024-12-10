@@ -27,7 +27,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.12'  # Set to the Python version you are using
+        python-version: '3.8'  # Set to the Python version you are using
 
     - name: Install dependencies
       run: |
@@ -36,8 +36,8 @@ jobs:
 
     - name: Install Elastic Beanstalk CLI
       run: |
-        curl -o "eb-cli.zip" https://d1vvhvl2y92vvt.cloudfront.net/aws-eb-cli-v3.zip
-        unzip eb-cli.zip -d /usr/local/bin
+        # Install the Elastic Beanstalk CLI using pip
+        pip install awsebcli
         eb --version  # Verify installation of eb CLI
 
     - name: Configure AWS credentials
