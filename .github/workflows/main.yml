@@ -5,11 +5,9 @@ on:
     branches: ["main"]
 
 env:
-  AWS_REGION: us-east-2                     # Set this to your AWS region, e.g., us-west-1
-  EB_APPLICATION_NAME: VinylRecordsApp      # Set this to your Elastic Beanstalk application name
-  EB_ENVIRONMENT_NAME: VinylRecordsApp-env  # Set this to your Elastic Beanstalk environment name
-  EB_BUCKET_NAME: vly2121                  # Set this to your S3 bucket for storing application versions
-  IMAGE_TAG: ${{ github.sha }}             # Image tag based on Git commit SHA
+  AWS_REGION: us-east-2  # Set this to your AWS region, e.g., us-west-1
+  EB_BUCKET_NAME: vly2121  # Set this to your S3 bucket for storing application versions
+  IMAGE_TAG: ${{ github.sha }}  # Image tag based on Git commit SHA
 
 permissions:
   contents: read
@@ -59,15 +57,18 @@ jobs:
     - name: Initialize Elastic Beanstalk Application
       run: |
         # Initialize Elastic Beanstalk for Python 3.12
-        eb init -p python-3.12 ${{ env.EB_APPLICATION_NAME }} --region ${{ env.AWS_REGION }} --no-verify-ssl
-        eb use ${{ env.EB_ENVIRONMENT_NAME }}
+        eb init -p python-3.12 --region ${{ env.AWS_REGION }} --no-verify-ssl
 
     - name: Create Elastic Beanstalk Environment if it doesn't exist
       run: |
+        # Set your application and environment name
+        EB_APPLICATION_NAME=VinylRecordsApp
+        EB_ENVIRONMENT_NAME=VinylRecordsApp-env
+
         # Check if the environment exists, and create it if not
-        if ! eb describe environment --environment-name ${{ env.EB_ENVIRONMENT_NAME }}; then
+        if ! eb describe environment --environment-name $EB_ENVIRONMENT_NAME; then
           echo "Environment not found, creating..."
-          eb create ${{ env.EB_ENVIRONMENT_NAME }} --region ${{ env.AWS_REGION }} --single
+          eb create $EB_ENVIRONMENT_NAME --region ${{ env.AWS_REGION }} --single
         else
           echo "Environment exists."
         fi
