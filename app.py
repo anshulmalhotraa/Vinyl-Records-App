@@ -11,7 +11,7 @@ app = Flask(__name__)
 # Fetch secret key from AWS Systems Manager Parameter Store
 def get_secret_key():
     try:
-        ssm = boto3.client('ssm', region_name='eu-west-1')  # Use the region where your parameter is stored
+        ssm = boto3.client('ssm', region_name='us-east-2')  # Use the region where your parameter is stored
         parameter = ssm.get_parameter(Name='/flask/secret_key', WithDecryption=True)
         return parameter['Parameter']['Value']
     except (NoCredentialsError, PartialCredentialsError):
