@@ -2,13 +2,13 @@ version: 0.0
 os: linux
 files:
   - source: /
-    destination: /home/ec2-user/app
+    destination: /home/ubuntu/app/src
 hooks:
   AfterInstall:
-    - location: scripts/restart_server.sh
+    - location: src/scripts/restart_server.sh
       timeout: 300
       runas: root
   ApplicationStart:
-    - location: scripts/start_flask.sh
+    - location: src/scripts/start_flask.sh
       timeout: 300
       runas: root
