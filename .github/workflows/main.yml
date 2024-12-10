@@ -1,28 +1,20 @@
-name: Create and Deploy to AWS Elastic Beanstalk
+name: Deploy to Elastic Beanstalk
 
 on:
   push:
-    branches: ["main"]
-
-env:
-  AWS_REGION: us-east-2                     # Set this to your AWS region, e.g., us-west-1
-  EB_BUCKET_NAME: vly2121                   # Set this to your S3 bucket for storing application versions
-  IMAGE_TAG: ${{ github.sha }}              # Image tag based on Git commit SHA
-
-permissions:
-  contents: read
+    branches:
+      - main
 
 jobs:
   deploy:
-    name: Create and Deploy to Elastic Beanstalk
+    name: Deploy to Elastic Beanstalk
     runs-on: ubuntu-latest
-    environment: production
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-    - name: Set up Python 3.12
+    - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.12'
@@ -32,72 +24,16 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Install Elastic Beanstalk CLI
-      run: |
-        # Install the Elastic Beanstalk CLI using pip
-        pip install awsebcli
-        eb --version  # Verify installation of eb CLI
-
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ env.AWS_REGION }}
-
-    - name: Prepare application for Elastic Beanstalk
-      run: |
-        # Create a ZIP file of the application to upload to Elastic Beanstalk
-        zip -r application.zip .  # Create a zip of the project folder
-
-    - name: Upload application to S3
-      run: |
-        aws s3 cp application.zip s3://${{ env.EB_BUCKET_NAME }}/application.zip
-
-    - name: Create Elastic Beanstalk Application if it doesn't exist
-      run: |
-        # Check if the application exists
-        if ! aws elasticbeanstalk describe-applications --application-names MyDynamicApp; then
-          echo "Creating Elastic Beanstalk application..."
-          aws elasticbeanstalk create-application --application-name MyDynamicApp
-          # Wait for the application to be recognized
-          echo "Waiting for application to be available..."
-          for i in {1..10}; do
-            if aws elasticbeanstalk describe-applications --application-names MyDynamicApp; then
-              echo "Application is available."
-              break
-            fi
-            echo "Application not available yet, retrying in 10 seconds..."
-            sleep 10
-          done
-        else
-          echo "Application already exists."
-        fi
-
-    - name: Register Application Version
-      run: |
-        # Register the application version with Elastic Beanstalk
-        aws elasticbeanstalk create-application-version \
-          --application-name MyDynamicApp \
-          --version-label ${{ env.IMAGE_TAG }} \
-          --source-bundle S3Bucket=${{ env.EB_BUCKET_NAME }},S3Key=application.zip
-
-    - name: Initialize Elastic Beanstalk Application
-      run: |
-        # Initialize Elastic Beanstalk for Python 3.12
-        eb init -p python-3.12 --region ${{ env.AWS_REGION }} --no-verify-ssl
-
-    - name: Create Elastic Beanstalk Environment
-      run: |
-        # Check if the environment exists using eb list
-        if eb list | grep -q 'MyDynamicEnv'; then
-          echo "Environment already exists."
-        else
-          echo "Creating Elastic Beanstalk environment..."
-          eb create MyDynamicEnv --region ${{ env.AWS_REGION }} --single
-        fi
+    - name: Zip application
+      run: zip -r application.zip .
 
     - name: Deploy to Elastic Beanstalk
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: ${{ secrets.AWS_REGION }}
       run: |
-        # Deploy the application to Elastic Beanstalk using the version we registered
-        eb deploy MyDynamicEnv --no-verify-ssl --label ${{ env.IMAGE_TAG }}
+        pip install awsebcli
+        eb init -p python-3.12 vinyl-records-app21 --region us-east-2
+        eb use your-environment-name
+        eb deploy
