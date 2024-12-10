@@ -2,24 +2,12 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
-import boto3
-from botocore.exceptions import NoCredentialsError, PartialCredentialsError
 import os
 
 app = Flask(__name__)
 
-# Fetch secret key from AWS Systems Manager Parameter Store
-def get_secret_key():
-    try:
-        ssm = boto3.client('ssm', region_name='us-east-2')  # Use the region where your parameter is stored
-        parameter = ssm.get_parameter(Name='/flask/secret_key', WithDecryption=True)
-        return parameter['Parameter']['Value']
-    except (NoCredentialsError, PartialCredentialsError):
-        # Fallback for local development
-        return "default_key"
-
-# Set the secret key
-app.secret_key = get_secret_key()
+# Set the secret key from an environment variable or use a default for development
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "default_key")
 
 # Database initialization
 def init_db():
