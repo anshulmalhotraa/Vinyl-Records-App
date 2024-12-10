@@ -53,6 +53,19 @@ jobs:
     - name: Upload application to S3
       run: |
         aws s3 cp application.zip s3://${{ env.EB_BUCKET_NAME }}/application.zip
+
+    - name: Create Elastic Beanstalk Application if it doesn't exist
+      run: |
+        # Check if the application exists
+        if ! aws elasticbeanstalk describe-applications --application-names MyDynamicApp; then
+          echo "Creating Elastic Beanstalk application..."
+          aws elasticbeanstalk create-application --application-name MyDynamicApp
+        else
+          echo "Application already exists."
+        fi
+
+    - name: Register Application Version
+      run: |
         # Register the application version with Elastic Beanstalk
         aws elasticbeanstalk create-application-version \
           --application-name MyDynamicApp \
